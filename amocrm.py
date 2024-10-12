@@ -112,9 +112,8 @@ class AmoCrm:
                 counter += files.json().get('_count')
                 files_url = files.json().get('_links').get('next').get('href')
         except AttributeError:
-            print(files.json())
-        # pprint(files.json())
-        return "Total files: ", counter
+            pass
+        print(f"Total files: {counter}")
 
     async def get_entity(self, file_uuid):
         if os.path.exists('amocrm.json'):
@@ -152,35 +151,6 @@ class AmoCrm:
             files.append(info)
         return files
 
-    # def download_files(self, page):
-    #     files = self.get_files_list(page)
-    #     base_folder = "downloads"
-    #
-    #     for entry in files:
-    #         entities = entry.get('entities', [])
-    #         file_link = entry.get('file_link', '')
-    #
-    #         if entities and file_link:
-    #             entity_type = entities[0].get('entity_type', '')
-    #             entity_id = entities[0].get('entity_id', '')
-    #
-    #             if entity_type and entity_id:
-    #                 # Create folders if they don't exist
-    #                 entity_folder = os.path.join(base_folder, entity_type, str(entity_id))
-    #                 os.makedirs(entity_folder, exist_ok=True)
-    #
-    #                 # Extract file name from the URL
-    #                 file_name = os.path.basename(file_link.split('?')[0])
-    #
-    #                 # Download the file
-    #                 response = requests.get(file_link)
-    #                 file_path = os.path.join(entity_folder, file_name)
-    #
-    #                 # Save the file locally
-    #                 with open(file_path, 'wb') as file:
-    #                     file.write(response.content)
-    #
-    #                 print(f"File saved to: {file_path}")
 
     async def download_file(self, entry, base_folder):
         entities = entry.get('entities', [])
@@ -250,6 +220,7 @@ def main():
     parser = argparse.ArgumentParser(description='AmoCrm Files Downloader')
     parser.add_argument('-a', action='store_true', help='Authorize')
     parser.add_argument('-df', action='store_true', help='Download files')
+    parser.add_argument('-c', action='store_true', help='Count files')
     parser.add_argument('--start', type=int, default=1, help='Start range for file download')
     parser.add_argument('--stop', type=int, default=200, help='Stop range for file download')
     parser.add_argument('--delete', action='store_true', help='Delete files')
@@ -260,6 +231,9 @@ def main():
 
     if args.a:
         crm_worker.authorize()
+
+    if args.c:
+        crm_worker.count_all_files()
 
     if args.df:
         start_range = args.start
